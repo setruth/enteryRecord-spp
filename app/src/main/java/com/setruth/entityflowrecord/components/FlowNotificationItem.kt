@@ -1,0 +1,188 @@
+package com.setruth.entityflowrecord.components
+
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.setruth.entityflowrecord.model.FLowType
+import com.setruth.entityflowrecord.model.FlowBaseRecord
+import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import kotlin.random.Random
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun FlowNotificationItem(record: FlowBaseRecord, modifier: Modifier = Modifier) {
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm:ss") }
+
+    // 根据 FlowType 判断颜色、文本和图标
+    val changeColor =
+        if (record.type == FLowType.ENTRY) Color(0xFF8AF58E) else Color(0xFFFC7971) // 绿色表示进入，红色表示出去
+    val changeText = if (record.type == FLowType.ENTRY) "+1" else "-1" // 假设每次变化都是 +1 或 -1
+    val icon: ImageVector =
+        if (record.type == FLowType.ENTRY) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
+    val statusText = if (record.type == FLowType.ENTRY) "进入" else "出去"
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp), // 固定内边距
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween // 左右两边内容对齐
+        ) {
+            // 左侧：时间、状态
+            Column(
+                modifier = Modifier.weight(1f) // 占据左侧大部分空间
+            ) {
+                Text(
+                    text = record.timestamp.format(timeFormatter),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    fontWeight = FontWeight.Bold,
+                    text = statusText,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+
+            // 中间：人数变化图标和文字
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(0.5f)
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = statusText,
+                    tint = changeColor,
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = changeText,
+                    color = changeColor,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            // 右侧：当前总人数
+            Column(
+                horizontalAlignment = Alignment.End, // 右对齐
+                modifier = Modifier.weight(1f) // 占据右侧大部分空间
+            ) {
+                Text(
+                    text = "${record.changeAfterTotalPeople}人",
+                    style = MaterialTheme.typography.headlineSmall, // 稍大的字体
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "${statusText}后总人数",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, widthDp = 360, heightDp = 720)
+@Composable
+fun NewestNotificationCardPreview() {
+    EntityFlowRecordTheme(darkTheme = ThemeMode.LIGHT) {
+        var countNum = 100
+        val notifications: List<FlowBaseRecord> = remember {
+            (1..10).map { i ->
+                val randomMinutes = Random.nextInt(0, 60)
+                val randomHours = Random.nextInt(0, 24)
+                val randomDays = Random.nextInt(0, 7)
+                val timestamp = LocalDateTime.now()
+
+                val isEntry = Random.nextBoolean()
+                val type = if (isEntry) FLowType.ENTRY else FLowType.EXIT
+                val currentTotal = countNum + if (isEntry) 1 else -1
+                countNum = currentTotal
+                object : FlowBaseRecord {
+                    override val timestamp: LocalDateTime
+                        get() = timestamp
+                    override val type: FLowType
+                        get() = type
+                    override val changeAfterTotalPeople: Int
+                        get() = currentTotal
+
+                }
+            }.sortedByDescending { it.timestamp }
+        }
+
+        Box(Modifier.padding(10.dp)) {
+            Card(
+                modifier = Modifier.fillMaxSize(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                ),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(0.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(notifications) { record ->
+                            FlowNotificationItem(record = record)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
