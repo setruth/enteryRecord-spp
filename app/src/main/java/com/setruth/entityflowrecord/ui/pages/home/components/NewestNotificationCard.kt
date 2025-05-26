@@ -51,7 +51,7 @@ fun FlowNotificationSimpleItem(index: Int, record: FlowBaseRecord, modifier: Mod
 
     // 根据 FlowType 判断颜色、文本和图标
     val changeColor =
-        if (record.type == FLowType.ENTRY) Color(0xFF8AF58E) else Color(0xFFFC7971) // 绿色表示进入，红色表示出去
+        if (record.type == FLowType.ENTRY) Color(0xFF81C784) else Color(0xFFE57373) // 绿色表示进入，红色表示出去
     val changeText = if (record.type == FLowType.ENTRY) "+1" else "-1" // 假设每次变化都是 +1 或 -1
     val icon: ImageVector =
         if (record.type == FLowType.ENTRY) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
@@ -129,7 +129,7 @@ fun NewestNotificationCard() {
 
             val isEntry = Random.nextBoolean()
             val type = if (isEntry) FLowType.ENTRY else FLowType.EXIT
-            val currentTotal = countNum + if (isEntry) 1 else -1
+            val currentTotal = countNum + if (isEntry) (1) else (-1)
             countNum = currentTotal
             object : FlowBaseRecord {
                 override val timestamp: LocalDateTime
@@ -140,7 +140,7 @@ fun NewestNotificationCard() {
                     get() = currentTotal
 
             }
-        }.sortedByDescending { it.timestamp }
+        }
     }
     Card(
         modifier = Modifier.fillMaxSize(),

@@ -15,6 +15,6 @@ enum class ThemeMode {
     }
 }
 enum class FLowType{
-    ENTRY, // 进入
-    EXIT   // 出去
+    ENTRY,
+    EXIT
 }
