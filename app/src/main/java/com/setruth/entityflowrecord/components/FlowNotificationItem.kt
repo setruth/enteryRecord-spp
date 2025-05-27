@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowOutward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -37,15 +39,13 @@ import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FlowNotificationItem(modifier: Modifier = Modifier,index: Int, record: FlowBaseRecord) {
+fun FlowNotificationItem(modifier: Modifier = Modifier, index: Int, record: FlowBaseRecord) {
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm:ss") }
 
     // 根据 FlowType 判断颜色、文本和图标
     val changeColor =
         if (record.type == FLowType.ENTRY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
     val changeText = if (record.type == FLowType.ENTRY) "+1" else "-1" // 假设每次变化都是 +1 或 -1
-    val icon: ImageVector =
-        if (record.type == FLowType.ENTRY) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
     val statusText = if (record.type == FLowType.ENTRY) "进入" else "出去"
 
     Surface(
@@ -62,7 +62,7 @@ fun FlowNotificationItem(modifier: Modifier = Modifier,index: Int, record: FlowB
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.width(100.dp)
             ) {
                 Text(
                     text = "$index",
@@ -84,11 +84,15 @@ fun FlowNotificationItem(modifier: Modifier = Modifier,index: Int, record: FlowB
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
             ) {
+                var iconModifier = Modifier.size(24.dp)
+                if (record.type == FLowType.ENTRY) {
+                    iconModifier = iconModifier.rotate(180f)
+                }
                 Icon(
-                    imageVector = icon,
+                    imageVector = Icons.Default.ArrowOutward,
                     contentDescription = statusText,
                     tint = changeColor,
-                    modifier = Modifier.size(24.dp)
+                    modifier = iconModifier
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
@@ -101,7 +105,7 @@ fun FlowNotificationItem(modifier: Modifier = Modifier,index: Int, record: FlowB
 
             Text(
                 textAlign = TextAlign.End,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.width(100.dp),
                 text = "${record.changeAfterTotalPeople}人",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -109,18 +113,19 @@ fun FlowNotificationItem(modifier: Modifier = Modifier,index: Int, record: FlowB
         }
     }
 }
+
 @Preview(showBackground = true, widthDp = 360, heightDp = 720)
 @Composable
 fun HomeViewPreview() {
     EntityFlowRecordTheme(ThemeMode.LIGHT) {
-       FlowNotificationItem(index = 1, record =  object :  FlowBaseRecord {
-           override val timestamp: LocalDateTime
-               @RequiresApi(Build.VERSION_CODES.O)
-               get() = LocalDateTime.now()
-           override val type: FLowType
-               get() = FLowType.ENTRY
-           override val changeAfterTotalPeople: Int
-               get() = 12
-       })
+        FlowNotificationItem(index = 1, record = object : FlowBaseRecord {
+            override val timestamp: LocalDateTime
+                @RequiresApi(Build.VERSION_CODES.O)
+                get() = LocalDateTime.now()
+            override val type: FLowType
+                get() = FLowType.ENTRY
+            override val changeAfterTotalPeople: Int
+                get() = 12
+        })
     }
 }
