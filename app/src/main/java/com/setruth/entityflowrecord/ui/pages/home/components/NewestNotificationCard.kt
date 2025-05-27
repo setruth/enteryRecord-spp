@@ -44,80 +44,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Composable
-fun FlowNotificationSimpleItem(index: Int, record: FlowBaseRecord, modifier: Modifier = Modifier) {
-    val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm:ss") }
 
-    // 根据 FlowType 判断颜色、文本和图标
-    val changeColor =
-        if (record.type == FLowType.ENTRY) Color(0xFF81C784) else Color(0xFFE57373) // 绿色表示进入，红色表示出去
-    val changeText = if (record.type == FLowType.ENTRY) "+1" else "-1" // 假设每次变化都是 +1 或 -1
-    val icon: ImageVector =
-        if (record.type == FLowType.ENTRY) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
-    val statusText = if (record.type == FLowType.ENTRY) "进入" else "出去"
-
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.secondaryContainer
-    ) {
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp), // 固定内边距
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween // 左右两边内容对齐
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Text(
-                    text = "${index}. ",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = record.timestamp.format(timeFormatter),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    fontWeight = FontWeight.Bold
-                )
-
-            }
-
-            Row(
-                modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = statusText,
-                    tint = changeColor,
-                    modifier = Modifier.size(24.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = changeText,
-                    color = changeColor,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-
-            Text(
-                text = "${record.changeAfterTotalPeople}人",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
-    }
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -166,7 +93,7 @@ fun NewestNotificationCard() {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(notifications.withIndex().toList()) { (index, record) -> // 解构 IndexedValue
-                    FlowNotificationSimpleItem(index = index + 1, record = record)
+                    FlowNotificationItem(index = index + 1, record = record)
                 }
             }
         }
