@@ -35,7 +35,6 @@ import androidx.navigation.compose.rememberNavController
 import com.setruth.entityflowrecord.components.MaskBox
 import com.setruth.entityflowrecord.model.MaskAnimModel
 import com.setruth.entityflowrecord.model.ThemeMode
-import com.setruth.entityflowrecord.ui.pages.history.HistoryView
 import com.setruth.entityflowrecord.ui.pages.home.HomeView
 import com.setruth.entityflowrecord.ui.pages.notification.NotificationView
 import com.setruth.entityflowrecord.ui.pages.setting.SettingView
@@ -108,7 +107,6 @@ fun MainFrame(startIndex: Int = 0) {
                     ) {
                         composable("home") { HomeView(themeMode) }
                         composable("notifications") { NotificationView() }
-                        composable("history") { HistoryView() }
                         composable("settings") { SettingView() }
                     }
                 }
