@@ -138,8 +138,8 @@ fun PeopleCountCard(
                 gapSize = (-3).dp,
                 drawStopIndicator = {  },
                 strokeCap = StrokeCap.Round,
-                color = MaterialTheme.colorScheme.primaryContainer,
-                trackColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                trackColor = MaterialTheme.colorScheme.primaryContainer,
             )
 
             Spacer(modifier = Modifier.height(3.dp))
