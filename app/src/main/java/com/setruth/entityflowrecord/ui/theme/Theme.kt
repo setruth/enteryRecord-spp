@@ -262,8 +262,8 @@ fun EntityFlowRecordTheme(
         }
     }
     val colorScheme = when (darkTheme) {
-        ThemeMode.DARK -> mediumContrastDarkColorScheme
-        ThemeMode.LIGHT -> mediumContrastLightColorScheme
+        ThemeMode.DARK -> darkScheme
+        ThemeMode.LIGHT -> lightScheme
     }
 
     MaterialTheme(
