@@ -26,8 +26,8 @@ import java.util.Calendar
 @Composable
 fun DateDialog(
     datePickerState: DatePickerState,
-    show:Boolean,
-    onDateSelected: (LocalDate) -> Unit,
+    show: Boolean,
+    onDateSelected: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     if (!show) return
@@ -41,7 +41,8 @@ fun DateDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-
+                    onDateSelected()
+                    onDismiss()
                 },
                 enabled = confirmEnabled.value
             ) {
