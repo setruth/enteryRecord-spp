@@ -2,6 +2,7 @@ package com.setruth.entityflowrecord.ui.pages.notification
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,18 +13,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,7 +75,6 @@ fun NotificationView() {
     val nowTimestamp = System.currentTimeMillis()
     val context = LocalContext.current
     var selectedIndex by remember { mutableIntStateOf(0) }
-    val options = listOf("全部", "进入", "出去")
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = nowTimestamp
     )
@@ -111,56 +116,15 @@ fun NotificationView() {
         }
     }
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                text = "${renderList.size}条",
-            )
-            SingleChoiceSegmentedButtonRow {
-                options.forEachIndexed { index, label ->
-                    SegmentedButton(
-                        shape = SegmentedButtonDefaults.itemShape(
-                            index = index,
-                            count = options.size
-                        ),
-                        onClick = { selectedIndex = index },
-                        selected = index == selectedIndex,
-                        label = { Text(label) }
-                    )
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
         DatePickerDocked(datePickerState) {
 
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f)
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(0.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(renderList.withIndex().toList()) { (index, record) -> // 解构 IndexedValue
-                    FlowNotificationItem(index + 1, record)
-                }
-            }
         }
         Spacer(modifier = Modifier.height(10.dp))
         Card(
             modifier = Modifier
                 .fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
             ),
             shape = RoundedCornerShape(16.dp)
         ) {
@@ -185,11 +149,10 @@ fun NotificationView() {
                         modifier = Modifier.weight(1f),
                         text = "最高人数",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
                     Text(
                         text = "35人(12:11:07)",
-                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -204,16 +167,85 @@ fun NotificationView() {
                         modifier = Modifier.weight(1f),
                         text = "最低人数",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                     )
                     Text(
                         text = "12人(17:06:11)",
-                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
         }
+        Spacer(modifier = Modifier.height(10.dp))
+        Row {
+            Text(
+                modifier = Modifier.weight(1f),
+                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.bodyMedium,
+                text = "共${renderList.size}条",
+                color = MaterialTheme.colorScheme.tertiary
+            )
+            Row(
+                modifier = Modifier.clickable {
+
+                },
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.bodyMedium,
+                    text = "全部",
+                )
+                Icon(
+                    modifier = Modifier.size(18.dp),
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = null
+                )
+                DropdownMenu(
+                    expanded = false,
+                    onDismissRequest = { }
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                style = MaterialTheme.typography.bodyMedium,
+                                text = "全部",
+                            )
+                        },
+                        onClick = { /* Do something... */ }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                style = MaterialTheme.typography.bodyMedium,
+                                text = "进入",
+                            )
+                        },
+                        onClick = { /* Do something... */ }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                style = MaterialTheme.typography.bodyMedium,
+                                text = "出去",
+                            )
+                        },
+                        onClick = { /* Do something... */ }
+                    )
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(renderList.withIndex().toList()) { (index, record) -> // 解构 IndexedValue
+                FlowNotificationItem(modifier = Modifier.padding(horizontal = 16.dp,  vertical = 12.dp),index=index + 1, record =  record)
+            }
+        }
+
     }
 }
 
@@ -232,7 +264,7 @@ fun DatePickerDocked(datePickerState: DatePickerState, onDateChange: () -> Unit)
         OutlinedTextField(
             value = selectedDate,
             onValueChange = { },
-            label = { Text("查询时间") },
+            label = { Text("查询日期") },
             readOnly = true,
             trailingIcon = {
                 IconButton(onClick = { showDatePicker = true }) {

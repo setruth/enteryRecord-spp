@@ -22,6 +22,8 @@ import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -89,12 +91,17 @@ fun NewestNotificationCard() {
             Spacer(modifier = Modifier.height(5.dp))
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(0.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(notifications.withIndex().toList()) { (index, record) -> // 解构 IndexedValue
-                    FlowNotificationItem(index = index + 1, record = record)
+                    FlowNotificationItem(modifier = Modifier.padding(vertical = 12.dp),index + 1, record)
+                    // 添加分割线，但最后一个 item 不添加
+                    if (index < notifications.lastIndex) {
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                        )
+                    }
                 }
+
             }
         }
     }

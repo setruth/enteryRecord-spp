@@ -24,53 +24,57 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.setruth.entityflowrecord.model.FLowType
 import com.setruth.entityflowrecord.model.FlowBaseRecord
+import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.ui.frame.MainFrame
+import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun FlowNotificationItem(index: Int, record: FlowBaseRecord, modifier: Modifier = Modifier) {
+fun FlowNotificationItem(modifier: Modifier = Modifier,index: Int, record: FlowBaseRecord) {
     val timeFormatter = remember { DateTimeFormatter.ofPattern("HH:mm:ss") }
 
     // 根据 FlowType 判断颜色、文本和图标
     val changeColor =
-        if (record.type == FLowType.ENTRY) Color(0xFF81C784) else Color(0xFFE57373) // 绿色表示进入，红色表示出去
+        if (record.type == FLowType.ENTRY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.tertiary
     val changeText = if (record.type == FLowType.ENTRY) "+1" else "-1" // 假设每次变化都是 +1 或 -1
     val icon: ImageVector =
         if (record.type == FLowType.ENTRY) Icons.Default.ArrowUpward else Icons.Default.ArrowDownward
     val statusText = if (record.type == FLowType.ENTRY) "进入" else "出去"
 
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.secondaryContainer
+        color = MaterialTheme.colorScheme.surfaceContainerLow
     ) {
-
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp), // 固定内边距
+            modifier = modifier
+                .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween // 左右两边内容对齐
         ) {
             Row(
-
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.Start,
+                modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = "${index}. ",
+                    text = "$index",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    fontWeight = FontWeight.SemiBold
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold
                 )
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = record.timestamp.format(timeFormatter),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    fontWeight = FontWeight.Bold
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
 
             }
@@ -96,11 +100,27 @@ fun FlowNotificationItem(index: Int, record: FlowBaseRecord, modifier: Modifier 
             }
 
             Text(
+                textAlign = TextAlign.End,
+                modifier = Modifier.weight(1f),
                 text = "${record.changeAfterTotalPeople}人",
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                fontWeight = FontWeight.SemiBold
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
+    }
+}
+@Preview(showBackground = true, widthDp = 360, heightDp = 720)
+@Composable
+fun HomeViewPreview() {
+    EntityFlowRecordTheme(ThemeMode.LIGHT) {
+       FlowNotificationItem(index = 1, record =  object :  FlowBaseRecord {
+           override val timestamp: LocalDateTime
+               @RequiresApi(Build.VERSION_CODES.O)
+               get() = LocalDateTime.now()
+           override val type: FLowType
+               get() = FLowType.ENTRY
+           override val changeAfterTotalPeople: Int
+               get() = 12
+       })
     }
 }
