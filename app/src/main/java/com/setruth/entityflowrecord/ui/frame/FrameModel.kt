@@ -21,6 +21,6 @@ data class ThemeModeClickInfo(
 )
 val navItems = listOf(
     NavItem("home", "首页","智能人员流动总览", Icons.Outlined.Home),
-    NavItem("notifications", "流动记录","人员流动历史记录",  Icons.Outlined.Notifications),
-    NavItem("settings", "平台设置", "智能平台设置",Icons.Outlined.Settings)
+    NavItem("notifications", "记录","人员流动历史记录",  Icons.Outlined.Notifications),
+    NavItem("settings", "设置", "智能平台设置",Icons.Outlined.Settings)
 )
