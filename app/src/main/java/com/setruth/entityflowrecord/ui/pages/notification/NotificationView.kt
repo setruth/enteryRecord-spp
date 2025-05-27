@@ -68,13 +68,34 @@ import java.util.Date
 import java.util.Locale
 import kotlin.random.Random
 
+
+enum class FilterMode {
+    ALL,
+    ENTRY,
+    EXIT
+}
+
+data class FilterData(
+    val name: String,
+    val mode: FilterMode
+)
+
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationView() {
     val nowTimestamp = System.currentTimeMillis()
     val context = LocalContext.current
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    var showFilterOptions by remember { mutableStateOf(false) }
+    val filterOptions = remember {
+        listOf(
+            FilterData("全部", FilterMode.ALL),
+            FilterData("进店", FilterMode.ENTRY),
+            FilterData("离店", FilterMode.EXIT)
+        )
+    }
+    var filterMode by remember { mutableStateOf(filterOptions[0]) }
+
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = nowTimestamp
     )
@@ -100,18 +121,18 @@ fun NotificationView() {
         }
     }
     var renderList by remember { mutableStateOf<List<FlowBaseRecord>>(emptyList()) }
-    LaunchedEffect(selectedIndex) {
-        when (selectedIndex) {
-            0 -> {
-                renderList = notifications
+    LaunchedEffect(filterMode) {
+        renderList = when (filterMode.mode) {
+            FilterMode.ALL -> {
+                notifications
             }
 
-            1 -> {
-                renderList = notifications.filter { it.type == FLowType.ENTRY }
+            FilterMode.ENTRY -> {
+                notifications.filter { it.type == FLowType.ENTRY }
             }
 
-            2 -> {
-                renderList = notifications.filter { it.type == FLowType.EXIT }
+            FilterMode.EXIT -> {
+                notifications.filter { it.type == FLowType.EXIT }
             }
         }
     }
@@ -186,15 +207,13 @@ fun NotificationView() {
                 color = MaterialTheme.colorScheme.tertiary
             )
             Row(
-                modifier = Modifier.clickable {
-
-                },
+                modifier = Modifier.clickable { showFilterOptions = true },
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     fontWeight = FontWeight.SemiBold,
                     style = MaterialTheme.typography.bodyMedium,
-                    text = "全部",
+                    text = filterMode.name,
                 )
                 Icon(
                     modifier = Modifier.size(18.dp),
@@ -202,47 +221,40 @@ fun NotificationView() {
                     contentDescription = null
                 )
                 DropdownMenu(
-                    expanded = false,
-                    onDismissRequest = { }
+                    expanded = showFilterOptions,
+                    onDismissRequest = { showFilterOptions = false }
                 ) {
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                style = MaterialTheme.typography.bodyMedium,
-                                text = "全部",
-                            )
-                        },
-                        onClick = { /* Do something... */ }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                style = MaterialTheme.typography.bodyMedium,
-                                text = "进入",
-                            )
-                        },
-                        onClick = { /* Do something... */ }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                style = MaterialTheme.typography.bodyMedium,
-                                text = "出去",
-                            )
-                        },
-                        onClick = { /* Do something... */ }
-                    )
+                    filterOptions.forEach {
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    text = it.name,
+                                    color = if (it.mode == filterMode.mode) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurface
+                                )
+                            },
+                            onClick = {
+                                filterMode = it
+                                showFilterOptions = false
+                            }
+                        )
+                    }
                 }
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(renderList.withIndex().toList()) { (index, record) -> // 解构 IndexedValue
-                FlowNotificationItem(modifier = Modifier.padding(horizontal = 16.dp,  vertical = 12.dp),index=index + 1, record =  record)
+                FlowNotificationItem(
+                    modifier = Modifier.padding(
+                        horizontal = 16.dp,
+                        vertical = 12.dp
+                    ), index = index + 1, record = record
+                )
             }
         }
 
