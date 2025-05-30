@@ -6,6 +6,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import com.setruth.entityflowrecord.data.model.mainNavItems
 
 @Composable
 fun BottomNavigationBar(
@@ -14,7 +15,7 @@ fun BottomNavigationBar(
     selectChange: (Int) -> Unit
 ) {
     NavigationBar {
-        navItems.forEachIndexed { index, item ->
+        mainNavItems.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = selectedItemIndex == index,
                 onClick = {

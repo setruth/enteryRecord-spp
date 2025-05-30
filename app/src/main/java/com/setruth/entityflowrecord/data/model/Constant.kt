@@ -2,6 +2,12 @@ package com.setruth.entityflowrecord.data.model
 
 import androidx.compose.ui.graphics.Color
 
+data class ThemeModeClickInfo(
+    val newMode: ThemeMode,
+    val clickX: Float,
+    val clickY: Float
+)
+
 enum class MaskAnimModel {
     EXPEND,
     SHRINK,
@@ -16,9 +22,11 @@ enum class ThemeMode {
         LIGHT -> DARK
     }
 }
-enum class FLowType{
+
+enum class FLowType {
     ENTRY,
     EXIT
 }
-val SUCCESS_COLOR= Color(0xFF66BB6A)
-val ERROR_COLOR= Color(0xFFEF5350)
+
+val SUCCESS_COLOR = Color(0xFF66BB6A)
+val ERROR_COLOR = Color(0xFFEF5350)

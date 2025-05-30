@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import com.setruth.entityflowrecord.data.model.ERROR_COLOR
 import com.setruth.entityflowrecord.data.model.SUCCESS_COLOR
 import com.setruth.entityflowrecord.data.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.ThemeModeClickInfo
 import com.setruth.entityflowrecord.ui.pages.setting.components.FlowStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
