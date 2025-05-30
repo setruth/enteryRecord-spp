@@ -26,11 +26,17 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
@@ -113,55 +119,65 @@ class MainActivity : ComponentActivity() {
                 val appNavController = rememberNavController()
                 var selectedItemIndex by remember { mutableIntStateOf(0) }
                 var themeMode by remember { mutableStateOf(ThemeMode.LIGHT) }
-                NavHost(
-                    navController = appNavController,
-                    startDestination = appNavItems[0].route,
-                    enterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(500)
-                        ) + fadeIn(animationSpec = tween(500))
-                    },
-                    exitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(500)
-                        ) + fadeOut(animationSpec = tween(500))
-                    },
-                    popEnterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(500)
-                        ) + fadeIn(animationSpec = tween(500))
-                    },
-                    popExitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { fullHeight -> fullHeight },
-                            animationSpec = tween(500)
-                        ) + fadeOut(animationSpec = tween(500))
-                    }
-                ) {
-                    composable(appNavItems[0].route) {
-                        MainFrame(themeMode = themeMode, themeChange = {
-                            themeMode = it
-                        }) {
-                            appNavController.navigate(appNavItems[1].route) {
-                                selectedItemIndex = 1
-                                popUpTo(appNavController.graph.startDestinationId) {
-                                    saveState = true
+                EntityFlowRecordTheme(themeMode) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.background)
+                    ) {
+                        NavHost(
+                            navController = appNavController,
+                            startDestination = appNavItems[0].route,
+                            enterTransition = {
+                                slideInVertically(
+                                    initialOffsetY = { fullHeight -> fullHeight },
+                                    animationSpec = tween(500)
+                                ) + fadeIn(animationSpec = tween(500))
+                            },
+                            exitTransition = {
+                                slideOutVertically(
+                                    targetOffsetY = { fullHeight -> fullHeight },
+                                    animationSpec = tween(500)
+                                ) + fadeOut(animationSpec = tween(500))
+                            },
+                            popEnterTransition = {
+                                slideInVertically(
+                                    initialOffsetY = { fullHeight -> fullHeight },
+                                    animationSpec = tween(500)
+                                ) + fadeIn(animationSpec = tween(500))
+                            },
+                            popExitTransition = {
+                                slideOutVertically(
+                                    targetOffsetY = { fullHeight -> fullHeight },
+                                    animationSpec = tween(500)
+                                ) + fadeOut(animationSpec = tween(500))
+                            }
+                        ) {
+                            composable(appNavItems[0].route) {
+                                MainFrame(themeMode = themeMode, themeChange = {
+                                    themeMode = it
+                                }) {
+                                    appNavController.navigate(appNavItems[1].route) {
+                                        selectedItemIndex = 1
+                                        popUpTo(appNavController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
                                 }
-                                launchSingleTop = true
-                                restoreState = true
+                            }
+                            composable(appNavItems[1].route) {
+                                DevicesView {
+                                    selectedItemIndex = 0
+                                    appNavController.popBackStack()
+                                }
                             }
                         }
                     }
-                    composable(appNavItems[1].route) {
-                        DevicesView(themeMode) {
-                            selectedItemIndex = 0
-                            appNavController.popBackStack()
-                        }
-                    }
+
                 }
+
             }
         }
     }
