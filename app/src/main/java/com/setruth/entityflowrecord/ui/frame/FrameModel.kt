@@ -6,7 +6,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.ThemeMode
 
 data class NavItem(
     val route: String,

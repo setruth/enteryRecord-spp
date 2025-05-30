@@ -1,4 +1,4 @@
-package com.setruth.entityflowrecord.model
+package com.setruth.entityflowrecord.data.model
 
 import java.time.LocalDateTime
 

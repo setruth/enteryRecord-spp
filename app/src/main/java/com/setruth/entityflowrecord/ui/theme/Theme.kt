@@ -10,7 +10,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.ThemeMode
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,

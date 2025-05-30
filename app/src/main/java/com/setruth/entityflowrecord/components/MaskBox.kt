@@ -24,7 +24,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalView
 import androidx.core.animation.addListener
 import androidx.core.graphics.applyCanvas
-import com.setruth.entityflowrecord.model.MaskAnimModel
+import com.setruth.entityflowrecord.data.model.MaskAnimModel
 import kotlin.math.hypot
 import kotlin.math.roundToInt
 import androidx.core.graphics.createBitmap

@@ -25,7 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

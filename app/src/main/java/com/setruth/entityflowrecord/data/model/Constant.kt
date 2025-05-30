@@ -1,4 +1,4 @@
-package com.setruth.entityflowrecord.model
+package com.setruth.entityflowrecord.data.model
 
 enum class MaskAnimModel {
     EXPEND,

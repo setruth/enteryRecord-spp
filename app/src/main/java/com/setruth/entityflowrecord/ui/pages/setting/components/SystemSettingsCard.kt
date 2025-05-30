@@ -46,7 +46,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.ui.frame.MainFrame
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
 

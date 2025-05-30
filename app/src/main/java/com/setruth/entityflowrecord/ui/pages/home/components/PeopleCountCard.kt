@@ -40,7 +40,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
 import kotlinx.coroutines.delay
 

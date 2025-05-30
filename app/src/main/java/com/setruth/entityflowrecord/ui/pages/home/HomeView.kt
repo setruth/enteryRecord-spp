@@ -20,7 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.ui.frame.MainFrame
 import com.setruth.entityflowrecord.ui.pages.home.components.NewestNotificationCard
 import com.setruth.entityflowrecord.ui.pages.home.components.PeopleCountCard
@@ -37,7 +37,7 @@ import java.time.format.DateTimeFormatter
 fun rememberCurrentTime(): String {
     val formatter = remember { DateTimeFormatter.ofPattern("HH:mm") }
     var currentTime by remember { mutableStateOf(LocalTime.now().format(formatter)) }
-
+    var showConnectDialog by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         while (true) {
             delay(1000L)

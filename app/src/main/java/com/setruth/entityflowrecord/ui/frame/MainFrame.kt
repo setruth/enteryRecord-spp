@@ -33,8 +33,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.setruth.entityflowrecord.components.MaskBox
-import com.setruth.entityflowrecord.model.MaskAnimModel
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.MaskAnimModel
+import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.ui.pages.home.HomeView
 import com.setruth.entityflowrecord.ui.pages.notification.NotificationView
 import com.setruth.entityflowrecord.ui.pages.setting.SettingView

@@ -56,9 +56,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.setruth.entityflowrecord.components.FlowNotificationItem
-import com.setruth.entityflowrecord.model.FLowType
-import com.setruth.entityflowrecord.model.FlowBaseRecord
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.FLowType
+import com.setruth.entityflowrecord.data.model.FlowBaseRecord
+import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.ui.frame.MainFrame
 import com.setruth.entityflowrecord.ui.pages.notification.components.DateDialog
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme

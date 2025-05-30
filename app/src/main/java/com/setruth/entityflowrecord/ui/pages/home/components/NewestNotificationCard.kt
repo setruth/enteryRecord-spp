@@ -38,9 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.setruth.entityflowrecord.components.FlowNotificationItem
-import com.setruth.entityflowrecord.model.FLowType
-import com.setruth.entityflowrecord.model.FlowBaseRecord
-import com.setruth.entityflowrecord.model.ThemeMode
+import com.setruth.entityflowrecord.data.model.FLowType
+import com.setruth.entityflowrecord.data.model.FlowBaseRecord
+import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
