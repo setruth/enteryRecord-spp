@@ -13,12 +13,19 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.setruth.entityflowrecord.data.di.appModule
 import com.setruth.entityflowrecord.ui.frame.MainFrame
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.androidx.compose.KoinAndroidContext
+import org.koin.compose.KoinApplication
+import org.koin.core.KoinApplication
+import org.koin.core.context.GlobalContext.startKoin
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
@@ -43,10 +50,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         requestBluetoothPermissions()
+        startKoin {
+            androidLogger()
+            androidContext(this@MainActivity)
+            modules(appModule)
+        }
         setContent {
-            MainFrame()
+            KoinAndroidContext {
+                MainFrame()
+            }
         }
     }
+
     private fun requestBluetoothPermissions() {
         val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             arrayOf(
