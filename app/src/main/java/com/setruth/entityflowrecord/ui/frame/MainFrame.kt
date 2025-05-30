@@ -103,7 +103,6 @@ fun MainFrame(startIndex: Int = 0) {
                         .padding(horizontal = 15.dp)
                         .padding(bottom = 10.dp)
                 ) {
-
                     NavHost(
                         navController = navController,
                         startDestination = navItems[selectedItemIndex].route,
@@ -120,7 +119,7 @@ fun MainFrame(startIndex: Int = 0) {
                             slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth }) + fadeOut()
                         }
                     ) {
-                        composable("home") { HomeView(themeMode) }
+                        composable("home") { HomeView() }
                         composable("notifications") { NotificationView() }
                         composable("settings") { SettingView() }
                     }
