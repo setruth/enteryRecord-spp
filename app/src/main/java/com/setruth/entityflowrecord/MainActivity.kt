@@ -23,9 +23,8 @@ import kotlinx.coroutines.withContext
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.compose.KoinAndroidContext
+import org.koin.androidx.scope.ScopeActivity
 import org.koin.compose.KoinApplication
-import org.koin.core.KoinApplication
-import org.koin.core.context.GlobalContext.startKoin
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
@@ -50,13 +49,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         requestBluetoothPermissions()
-        startKoin {
-            androidLogger()
-            androidContext(this@MainActivity)
-            modules(appModule)
-        }
         setContent {
-            KoinAndroidContext {
+            KoinApplication(application = {
+                androidContext(this@MainActivity)
+                modules(appModule)
+            }) {
                 MainFrame()
             }
         }
