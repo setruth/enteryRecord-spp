@@ -1,5 +1,6 @@
 package com.setruth.entityflowrecord.ui.frame
 
+import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,17 +35,26 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.setruth.entityflowrecord.components.MaskBox
+import com.setruth.entityflowrecord.data.di.appModule
 import com.setruth.entityflowrecord.data.model.MaskAnimModel
 import com.setruth.entityflowrecord.data.model.ThemeMode
+import com.setruth.entityflowrecord.data.repository.BluetoothRepository
 import com.setruth.entityflowrecord.ui.pages.home.HomeView
 import com.setruth.entityflowrecord.ui.pages.notification.NotificationView
 import com.setruth.entityflowrecord.ui.pages.setting.SettingView
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
+import org.koin.android.ext.koin.androidContext
+import org.koin.compose.KoinApplicationPreview
+import org.koin.compose.koinInject
+import org.koin.core.annotation.KoinExperimentalAPI
+import org.koin.dsl.module
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MainFrame(startIndex: Int = 0) {
+    val bluetoothRepository = koinInject<BluetoothRepository>()
+    val isConnect = bluetoothRepository.isConnected.collectAsState()
     var selectedItemIndex by remember { mutableIntStateOf(startIndex) }
     val navController = rememberNavController()
     var themeMode by remember { mutableStateOf(ThemeMode.LIGHT) }
@@ -63,7 +74,11 @@ fun MainFrame(startIndex: Int = 0) {
                     }
                 },
                 topBar = {
-                    TopBar(navItems[selectedItemIndex].topBarTitle, themeMode) { newThemeModeInfo ->
+                    TopBar(
+                        isConnect.value,
+                        navItems[selectedItemIndex].topBarTitle,
+                        themeMode
+                    ) { newThemeModeInfo ->
                         themeMode = newThemeModeInfo.newMode
                         when (themeMode) {
                             ThemeMode.DARK -> maskAnimActiveEvent(
@@ -115,35 +130,17 @@ fun MainFrame(startIndex: Int = 0) {
 
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DatePickerModal(
-    onDateSelected: (Long?) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val datePickerState = rememberDatePickerState()
 
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
-                onDismiss()
-            }) {
-                Text("OK")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    ) {
-        DatePicker(state = datePickerState)
-    }
-}
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(KoinExperimentalAPI::class)
 @Preview(showBackground = true, widthDp = 360, heightDp = 720)
 @Composable
 fun GreetingPreview() {
-    MainFrame()
+    KoinApplicationPreview(application = {
+        modules(appModule, module {
+            single { BluetoothRepository() }
+        })
+    }) {
+        MainFrame(0)
+    }
 }

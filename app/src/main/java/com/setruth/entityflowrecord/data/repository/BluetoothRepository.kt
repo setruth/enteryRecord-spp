@@ -8,9 +8,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class BluetoothRepository(private val bluetoothAdapter: BluetoothAdapter) {
+class BluetoothRepository(
+    private val bluetoothAdapter: BluetoothAdapter? = null,
+    initConnectState: Boolean = false
+) {
 
-    private val _isConnected = MutableStateFlow(false)
+    private val _isConnected = MutableStateFlow(initConnectState)
     val isConnected: StateFlow<Boolean> = _isConnected.asStateFlow()
 
     private val _connectedDevice = MutableStateFlow<BluetoothDevice?>(null)
@@ -29,6 +32,6 @@ class BluetoothRepository(private val bluetoothAdapter: BluetoothAdapter) {
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     fun getBondedDevices(): Set<BluetoothDevice> {
-        return bluetoothAdapter.bondedDevices ?: emptySet()
+        return bluetoothAdapter?.bondedDevices ?: emptySet()
     }
 }

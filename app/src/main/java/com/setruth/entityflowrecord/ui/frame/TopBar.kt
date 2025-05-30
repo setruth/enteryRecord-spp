@@ -23,14 +23,20 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.text.font.FontWeight
+import com.setruth.entityflowrecord.data.model.ERROR_COLOR
+import com.setruth.entityflowrecord.data.model.SUCCESS_COLOR
 import com.setruth.entityflowrecord.data.model.ThemeMode
+import com.setruth.entityflowrecord.ui.pages.setting.components.FlowStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    currentTitle:String,
+    connectState: Boolean,
+    currentTitle: String,
     themeMode: ThemeMode,
     themeModeChange: (ThemeModeClickInfo) -> Unit
 ) {
@@ -39,6 +45,20 @@ fun TopBar(
     TopAppBar(
         title = { Text(text = currentTitle) },
         actions = {
+            val connectStateStr = when (connectState) {
+                true -> "已连接"
+                false -> "未连接"
+            }
+            val connectColor = when (connectState) {
+                true -> SUCCESS_COLOR
+                false -> ERROR_COLOR
+            }
+            Text(
+                connectStateStr,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyMedium,
+                color = connectColor
+            )
             IconButton(
                 modifier = Modifier.onGloballyPositioned { coordinates ->
                     themeModeIconPositionX = coordinates.boundsInRoot().center.x

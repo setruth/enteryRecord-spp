@@ -1,6 +1,8 @@
 package com.setruth.entityflowrecord
 
 import android.Manifest
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -14,6 +16,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.setruth.entityflowrecord.data.di.appModule
+import com.setruth.entityflowrecord.data.repository.BluetoothRepository
 import com.setruth.entityflowrecord.ui.frame.MainFrame
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +28,8 @@ import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.compose.KoinAndroidContext
 import org.koin.androidx.scope.ScopeActivity
 import org.koin.compose.KoinApplication
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.module
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
@@ -49,10 +54,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         requestBluetoothPermissions()
+        val blueAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
+        val bluetoothRepository = BluetoothRepository(blueAdapter)
         setContent {
             KoinApplication(application = {
                 androidContext(this@MainActivity)
-                modules(appModule)
+                modules(appModule, module {
+                    single { bluetoothRepository }
+                })
             }) {
                 MainFrame()
             }
