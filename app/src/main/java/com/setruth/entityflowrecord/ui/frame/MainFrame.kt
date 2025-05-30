@@ -52,76 +52,72 @@ fun MainFrame(
     val isConnect = bluetoothRepository.isConnected.collectAsState()
     var selectedItemIndex by remember { mutableIntStateOf(startIndex) }
     val mainNavController = rememberNavController()
-
-    EntityFlowRecordTheme(themeMode) {
-        MaskBox(
-            animTime = 500,
-            maskComplete = {},
-            animFinish = {}
-        ) { maskAnimActiveEvent ->
-            Scaffold(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background),
-                bottomBar = {
-                    BottomNavigationBar(selectedItemIndex, mainNavController) { newSelectIndex ->
-                        selectedItemIndex = newSelectIndex
-                    }
-                },
-                topBar = {
-                    TopBar(
-                        isConnect.value,
-                        mainNavItems[selectedItemIndex].topBarTitle,
-                        themeMode,
-                    ) { newThemeModeInfo ->
-                        themeChange(newThemeModeInfo.newMode)
-                        when (themeMode) {
-                            ThemeMode.DARK -> maskAnimActiveEvent(
-                                MaskAnimModel.EXPEND,
-                                newThemeModeInfo.clickX,
-                                newThemeModeInfo.clickY
-                            )
-
-                            ThemeMode.LIGHT -> maskAnimActiveEvent(
-                                MaskAnimModel.SHRINK,
-                                newThemeModeInfo.clickX,
-                                newThemeModeInfo.clickY
-                            )
-                        }
-                    }
+    MaskBox(
+        animTime = 500,
+        maskComplete = {},
+        animFinish = {}
+    ) { maskAnimActiveEvent ->
+        Scaffold(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+            bottomBar = {
+                BottomNavigationBar(selectedItemIndex, mainNavController) { newSelectIndex ->
+                    selectedItemIndex = newSelectIndex
                 }
-            ) { paddingValue ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValue)
-                        .padding(horizontal = 15.dp)
-                        .padding(bottom = 10.dp)
-                ) {
-                    NavHost(
-                        navController = mainNavController,
-                        startDestination = mainNavItems[selectedItemIndex].route,
-                        enterTransition = {
-                            slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) + fadeIn()
-                        },
-                        exitTransition = {
-                            slideOutHorizontally(targetOffsetX = { fullWidth -> -fullWidth }) + fadeOut()
-                        },
-                        popEnterTransition = {
-                            slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }) + fadeIn()
-                        },
-                        popExitTransition = {
-                            slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth }) + fadeOut()
-                        }
-                    ) {
-                        composable("home") { HomeView(navToDevices) }
-                        composable("notifications") { NotificationView() }
-                        composable("settings") { SettingView() }
+            },
+            topBar = {
+                TopBar(
+                    isConnect.value,
+                    mainNavItems[selectedItemIndex].topBarTitle,
+                    themeMode,
+                ) { newThemeModeInfo ->
+                    themeChange(newThemeModeInfo.newMode)
+                    when (themeMode) {
+                        ThemeMode.DARK -> maskAnimActiveEvent(
+                            MaskAnimModel.EXPEND,
+                            newThemeModeInfo.clickX,
+                            newThemeModeInfo.clickY
+                        )
+
+                        ThemeMode.LIGHT -> maskAnimActiveEvent(
+                            MaskAnimModel.SHRINK,
+                            newThemeModeInfo.clickX,
+                            newThemeModeInfo.clickY
+                        )
                     }
                 }
             }
+        ) { paddingValue ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValue)
+                    .padding(horizontal = 15.dp)
+                    .padding(bottom = 10.dp)
+            ) {
+                NavHost(
+                    navController = mainNavController,
+                    startDestination = mainNavItems[selectedItemIndex].route,
+                    enterTransition = {
+                        slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) + fadeIn()
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(targetOffsetX = { fullWidth -> -fullWidth }) + fadeOut()
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }) + fadeIn()
+                    },
+                    popExitTransition = {
+                        slideOutHorizontally(targetOffsetX = { fullWidth -> fullWidth }) + fadeOut()
+                    }
+                ) {
+                    composable("home") { HomeView(navToDevices) }
+                    composable("notifications") { NotificationView() }
+                    composable("settings") { SettingView() }
+                }
+            }
         }
-
     }
 }
 
