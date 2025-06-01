@@ -49,7 +49,7 @@ fun MainFrame(
     navToDevices: () -> Unit = {}
 ) {
     val bluetoothRepository = koinInject<BluetoothRepository>()
-    val isConnect = bluetoothRepository.isConnected.collectAsState()
+    val connectedDevice by bluetoothRepository.connectedDevice.collectAsState()
     var selectedItemIndex by remember { mutableIntStateOf(startIndex) }
     val mainNavController = rememberNavController()
     MaskBox(
@@ -68,7 +68,7 @@ fun MainFrame(
             },
             topBar = {
                 TopBar(
-                    isConnect.value,
+                    connectedDevice != null,
                     mainNavItems[selectedItemIndex].topBarTitle,
                     themeMode,
                 ) { newThemeModeInfo ->
