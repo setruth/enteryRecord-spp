@@ -282,6 +282,13 @@ class BluetoothRepository(
     fun unregister() {
         bluetoothStatusReceiver?.unregister()
     }
+
+    /**
+     * 重置当前设备的连接状态
+     */
+    fun resetConnectionState() {
+        _connectionState.value = BluetoothConnectionState.None
+    }
 }
 
 sealed class BluetoothIoStream {

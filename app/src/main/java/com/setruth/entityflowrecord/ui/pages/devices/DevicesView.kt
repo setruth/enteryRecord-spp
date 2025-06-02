@@ -97,6 +97,11 @@ fun DevicesView(viewModel: DevicesViewModel = koinViewModel(), onFinish: () -> U
             is BluetoothConnectionState.Connected -> {
                 loadingConnectDevice = null
                 Toast.makeText(context, "连接成功", Toast.LENGTH_SHORT).show()
+                /**
+                 * 连接成功后设置为none会导致没来得及处理Connected就变成了处理None
+                 * 所以基于处理玩连接成功状态后重置，避免状态的处理不及时
+                 */
+                viewModel.resetConnectionState()
             }
 
             is BluetoothConnectionState.ConnectionFailed -> {

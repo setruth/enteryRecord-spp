@@ -45,6 +45,8 @@ class DevicesViewModel(
     fun disconnect() {
         bluetoothRepository.disconnect()
     }
-
+    fun resetConnectionState(){
+        bluetoothRepository.resetConnectionState()
+    }
 
 }
