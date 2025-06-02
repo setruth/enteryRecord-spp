@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.mmkv)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.koin.androidx.compose)

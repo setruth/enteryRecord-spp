@@ -54,6 +54,7 @@ import com.setruth.entityflowrecord.ui.pages.home.HomeView
 import com.setruth.entityflowrecord.ui.pages.notification.NotificationView
 import com.setruth.entityflowrecord.ui.pages.setting.SettingView
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
+import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -93,6 +94,8 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MMKV.initialize(this)
+
         enableEdgeToEdge()
         requestBluetoothEnableLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
