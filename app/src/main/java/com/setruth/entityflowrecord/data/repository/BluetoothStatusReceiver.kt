@@ -17,7 +17,7 @@ import com.setruth.entityflowrecord.data.model.BluetoothStatusListener
  * 可以通过回调函数通知外部状态变化。
  */
 class BluetoothStatusReceiver(
-    context: Context,
+    private val context: Context,
     private val statusCallback: BluetoothStatusListener
 ) : BroadcastReceiver() {
     companion object {
@@ -25,6 +25,7 @@ class BluetoothStatusReceiver(
     }
 
     init {
+        unregister()
         context.registerReceiver(this, IntentFilter().apply {
             // 扫描相关的 Action
             addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED)
@@ -41,6 +42,15 @@ class BluetoothStatusReceiver(
         })
     }
 
+    fun unregister() {
+        try {
+            context.unregisterReceiver(this)
+            Log.d(TAG, "蓝牙广播接收器注销注册")
+        } catch (e: IllegalArgumentException) {
+            // 如果接收器已经未注册，这里会抛出异常
+            Log.e(TAG, "注销了一个未注册的广播接收器: ${e.message}")
+        }
+    }
 
     @RequiresPermission(Manifest.permission.BLUETOOTH_CONNECT)
     override fun onReceive(context: Context?, intent: Intent?) {

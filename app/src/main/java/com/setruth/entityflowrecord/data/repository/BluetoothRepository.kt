@@ -33,7 +33,7 @@ class BluetoothRepository(
     private val bluetoothAdapter: BluetoothAdapter? = null,
 ) {
     private val TAG = "BluetoothRepository"
-
+    private val bluetoothStatusReceiver: BluetoothStatusReceiver?
     private val _connectedDevice = MutableStateFlow<BluetoothDevice?>(null)
     private var _connectionState =
         MutableStateFlow<BluetoothConnectionState>(BluetoothConnectionState.None)
@@ -83,7 +83,8 @@ class BluetoothRepository(
     }
 
     init {
-        context?.let { BluetoothStatusReceiver(it, bluetoothStatusCallback) }
+        bluetoothStatusReceiver =
+            context?.let { BluetoothStatusReceiver(it, bluetoothStatusCallback) }
     }
 
 
@@ -117,7 +118,7 @@ class BluetoothRepository(
             bluetoothScanCancelTimerJob = CoroutineScope(Dispatchers.IO).launch {
                 delay(second.seconds)
                 if (bluetoothAdapter?.isDiscovering == true) {
-                    bluetoothAdapter?.cancelDiscovery()
+                    bluetoothAdapter.cancelDiscovery()
                 }
             }
         }
@@ -275,6 +276,12 @@ class BluetoothRepository(
         startDiscoveryAutoCancel()
     }
 
+    /**
+     * 注销蓝牙线管的广播接收器，需要手动注销，避免内存泄露
+     */
+    fun unregister() {
+        bluetoothStatusReceiver?.unregister()
+    }
 }
 
 sealed class BluetoothIoStream {

@@ -71,6 +71,7 @@ import kotlin.time.Duration.Companion.seconds
 class MainActivity : ComponentActivity() {
     private lateinit var requestBluetoothEnableLauncher: ActivityResultLauncher<Intent>
     private lateinit var requestLocationEnableLauncher: ActivityResultLauncher<Intent>
+    private var bluetoothRepository: BluetoothRepository? = null
     private val requestPermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val allGranted = permissions.entries.all { it.value }
@@ -107,8 +108,8 @@ class MainActivity : ComponentActivity() {
                 checkAndProceedWithBluetoothOperations()
             }
         requestBluetoothPermissions()
-        val blueAdapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
-        val bluetoothRepository = BluetoothRepository(this, blueAdapter)
+        val blueAdapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
+        bluetoothRepository = BluetoothRepository(this, blueAdapter)
         setContent {
             KoinApplication(application = {
                 androidContext(this@MainActivity)
@@ -260,6 +261,11 @@ class MainActivity : ComponentActivity() {
         }
 
         onAllConditionsMet()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        bluetoothRepository?.unregister()
     }
 }
 
