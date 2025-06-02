@@ -250,7 +250,7 @@ data class ColorFamily(
 
 @Composable
 fun EntityFlowRecordTheme(
-    darkTheme: ThemeMode,
+    darkTheme: ThemeMode= ThemeMode.LIGHT,
     content: @Composable() () -> Unit
 ) {
     val view = LocalView.current
