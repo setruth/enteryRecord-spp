@@ -58,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.setruth.entityflowrecord.components.DisconnectConfirmDialog
 import com.setruth.entityflowrecord.data.di.appModule
 import com.setruth.entityflowrecord.data.model.ERROR_COLOR
 import com.setruth.entityflowrecord.data.model.SUCCESS_COLOR
@@ -92,6 +93,7 @@ fun DevicesView(viewModel: DevicesViewModel = koinViewModel(), onFinish: () -> U
             is BluetoothConnectionState.Connecting -> {
                 Toast.makeText(context, "正在连接", Toast.LENGTH_SHORT).show()
             }
+
             is BluetoothConnectionState.Connected -> {
                 loadingConnectDevice = null
                 Toast.makeText(context, "连接成功", Toast.LENGTH_SHORT).show()
@@ -239,39 +241,12 @@ fun DevicesView(viewModel: DevicesViewModel = koinViewModel(), onFinish: () -> U
         )
     }
     if (disconnectConfirmDialogShow) {
-        AlertDialog(
-            title = {
-                Text(text = "是否断开连接")
-            },
-            text = {
-                Text(text = "当前连接的设备[${connectDevice?.name ?: connectDevice?.address}]将断开连接，将无法收到设备消息和进行设备控制！")
-            },
-            onDismissRequest = {
+        DisconnectConfirmDialog(
+            connectDevice,
+            onConfirm = {
+                viewModel.disconnect()
+            }, onCancel = {
                 disconnectConfirmDialogShow = false
-
-            },
-            icon = {
-                Icon(Icons.AutoMirrored.Outlined.Logout, contentDescription = "Example Icon")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.disconnect()
-                        disconnectConfirmDialogShow = false
-                    }
-                ) {
-                    Text("确认")
-
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        disconnectConfirmDialogShow = false
-                    }
-                ) {
-                    Text("取消")
-                }
             }
         )
     }
