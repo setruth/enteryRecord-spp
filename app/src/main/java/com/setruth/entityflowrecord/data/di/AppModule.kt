@@ -15,4 +15,5 @@ import org.koin.dsl.module
 
 val appModule = module {
     viewModelOf(::DevicesViewModel)
+    viewModelOf(::HomeViewModel)
 }

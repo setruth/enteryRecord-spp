@@ -1,5 +1,7 @@
 package com.setruth.entityflowrecord.ui.pages.home.components
 
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothDevice
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,9 +22,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,11 +37,13 @@ import androidx.compose.ui.unit.dp
 import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
 
+@SuppressLint("MissingPermission")
 @Composable
 fun SystemStatusCard(
-    isSystemOn: Boolean,
+    connectDevice: BluetoothDevice? = null,
     modifier: Modifier = Modifier,
-    onSystemChange: (Boolean) -> Unit = {}
+    connect: () -> Unit = {},
+    disconnect: () -> Unit = {}
 ) = Card(
     modifier = modifier,
     colors = CardDefaults.cardColors(
@@ -52,38 +58,32 @@ fun SystemStatusCard(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(55.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.PowerSettingsNew,
-                contentDescription = "系统状态",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer, // 图标颜色
-                modifier = Modifier.size(30.dp)
-            )
-        }
         Spacer(modifier = Modifier.height(12.dp))
+        val cardTitle = if (connectDevice == null) "暂无连接" else "已连接"
         Text(
-            text = "系统状态",
+            text = cardTitle,
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Switch(
-            checked = isSystemOn,
-            onCheckedChange = { onSystemChange(it) },
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
-                checkedTrackColor = MaterialTheme.colorScheme.primary,
-                uncheckedThumbColor = MaterialTheme.colorScheme.surfaceVariant,
-                uncheckedTrackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-            )
+        val connectContent = if (connectDevice == null) "(点击扫描设备)" else connectDevice.name
+            ?: connectDevice.address
+        Text(
+            text = connectContent,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(onClick = {
+            if (connectDevice == null) {
+                connect()
+            } else {
+                disconnect()
+            }
+        }) {
+            Text(text = if (connectDevice == null) "扫描设备" else "断开连接")
+        }
     }
 }
 
@@ -92,7 +92,7 @@ fun SystemStatusCard(
 fun SystemStatusPreview() {
     EntityFlowRecordTheme(darkTheme = ThemeMode.LIGHT) {
         Box(Modifier.padding(10.dp)) {
-            SystemStatusCard(true)
+            SystemStatusCard(null)
         }
     }
 }
