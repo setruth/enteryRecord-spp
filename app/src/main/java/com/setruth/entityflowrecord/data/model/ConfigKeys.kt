@@ -6,4 +6,5 @@ object ConfigKeys {
     const val FULL_COUNT="full_count"
     const val YELLOW_LIGHT_RANGE="yellow_light_range"
     const val RED_LIGHT_RANGE="red_light_range"
+    const val IS_DARK_MODE="is_dark_mode"
 }

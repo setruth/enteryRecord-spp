@@ -30,6 +30,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +44,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.setruth.entityflowrecord.data.di.appModule
+import com.setruth.entityflowrecord.data.model.ConfigKeys
 import com.setruth.entityflowrecord.data.model.MainNavItem
 import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.data.model.appNavItems
@@ -95,7 +97,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MMKV.initialize(this)
-
+        val mmkv = MMKV.defaultMMKV()
         enableEdgeToEdge()
         requestBluetoothEnableLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -113,6 +115,11 @@ class MainActivity : ComponentActivity() {
         requestBluetoothPermissions()
         val blueAdapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
         bluetoothRepository = BluetoothRepository(this, blueAdapter)
+        val defaultThemeMode=  if (mmkv.getBoolean(ConfigKeys.IS_DARK_MODE, false)) {
+            ThemeMode.DARK
+        } else {
+            ThemeMode.LIGHT
+        }
         setContent {
             KoinApplication(application = {
                 androidContext(this@MainActivity)
@@ -122,7 +129,7 @@ class MainActivity : ComponentActivity() {
             }) {
                 val appNavController = rememberNavController()
                 var selectedItemIndex by remember { mutableIntStateOf(0) }
-                var themeMode by remember { mutableStateOf(ThemeMode.LIGHT) }
+                var themeMode by remember { mutableStateOf(defaultThemeMode) }
                 EntityFlowRecordTheme(themeMode) {
                     Box(
                         modifier = Modifier
@@ -160,6 +167,7 @@ class MainActivity : ComponentActivity() {
                             composable(appNavItems[0].route) {
                                 MainFrame(themeMode = themeMode, themeChange = {
                                     themeMode = it
+                                    mmkv.putBoolean(ConfigKeys.IS_DARK_MODE, it == ThemeMode.DARK)
                                 }) {
                                     appNavController.navigate(appNavItems[1].route) {
                                         selectedItemIndex = 1
