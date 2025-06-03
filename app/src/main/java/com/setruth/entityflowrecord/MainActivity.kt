@@ -19,12 +19,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -56,6 +58,7 @@ import com.setruth.entityflowrecord.ui.pages.home.HomeView
 import com.setruth.entityflowrecord.ui.pages.notification.NotificationView
 import com.setruth.entityflowrecord.ui.pages.setting.SettingView
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
+import com.setruth.entityflowrecord.ui.pages.splash.SplashView
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -140,36 +143,143 @@ class MainActivity : ComponentActivity() {
                             navController = appNavController,
                             startDestination = appNavItems[0].route,
                             enterTransition = {
-                                slideInVertically(
-                                    initialOffsetY = { fullHeight -> fullHeight },
-                                    animationSpec = tween(500)
-                                ) + fadeIn(animationSpec = tween(500))
+                                // 根据不同的页面切换使用不同的动画
+                                when (targetState.destination.route) {
+                                    appNavItems[0].route -> {
+                                        // 开屏页面：淡入效果
+                                        fadeIn(
+                                            animationSpec = tween(
+                                                durationMillis = 300,
+                                                easing = LinearOutSlowInEasing
+                                            )
+                                        )
+                                    }
+                                    appNavItems[1].route -> {
+                                        // 主页面：从右侧滑入
+                                        slideInHorizontally(
+                                            initialOffsetX = { fullWidth -> fullWidth },
+                                            animationSpec = tween(
+                                                durationMillis = 400,
+                                                easing = FastOutSlowInEasing
+                                            )
+                                        ) + fadeIn(
+                                            animationSpec = tween(
+                                                durationMillis = 400,
+                                                easing = LinearOutSlowInEasing
+                                            )
+                                        )
+                                    }
+                                    appNavItems[2].route -> {
+                                        // 设备页面：从右侧滑入
+                                        slideInHorizontally(
+                                            initialOffsetX = { fullWidth -> fullWidth },
+                                            animationSpec = tween(
+                                                durationMillis = 350,
+                                                easing = FastOutSlowInEasing
+                                            )
+                                        ) + fadeIn(
+                                            animationSpec = tween(
+                                                durationMillis = 350
+                                            )
+                                        )
+                                    }
+                                    else -> {
+                                        // 默认动画
+                                        fadeIn(animationSpec = tween(300))
+                                    }
+                                }
                             },
                             exitTransition = {
-                                slideOutVertically(
-                                    targetOffsetY = { fullHeight -> fullHeight },
-                                    animationSpec = tween(500)
-                                ) + fadeOut(animationSpec = tween(500))
+                                when (initialState.destination.route) {
+                                    appNavItems[0].route -> {
+                                        // 开屏页面：淡出效果
+                                        fadeOut(
+                                            animationSpec = tween(
+                                                durationMillis = 200,
+                                                easing = FastOutSlowInEasing
+                                            )
+                                        )
+                                    }
+                                    appNavItems[1].route -> {
+                                        // 主页面：向左滑出
+                                        slideOutHorizontally(
+                                            targetOffsetX = { fullWidth -> -fullWidth },
+                                            animationSpec = tween(
+                                                durationMillis = 350,
+                                                easing = FastOutSlowInEasing
+                                            )
+                                        ) + fadeOut(
+                                            animationSpec = tween(
+                                                durationMillis = 350
+                                            )
+                                        )
+                                    }
+                                    appNavItems[2].route -> {
+                                        // 设备页面：向左滑出
+                                        slideOutHorizontally(
+                                            targetOffsetX = { fullWidth -> -fullWidth },
+                                            animationSpec = tween(
+                                                durationMillis = 300,
+                                                easing = FastOutSlowInEasing
+                                            )
+                                        ) + fadeOut(
+                                            animationSpec = tween(
+                                                durationMillis = 300
+                                            )
+                                        )
+                                    }
+                                    else -> {
+                                        fadeOut(animationSpec = tween(250))
+                                    }
+                                }
                             },
                             popEnterTransition = {
-                                slideInVertically(
-                                    initialOffsetY = { fullHeight -> fullHeight },
-                                    animationSpec = tween(500)
-                                ) + fadeIn(animationSpec = tween(500))
+                                // 返回时的进入动画：从左侧滑入
+                                slideInHorizontally(
+                                    initialOffsetX = { fullWidth -> -fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 350,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                ) + fadeIn(
+                                    animationSpec = tween(
+                                        durationMillis = 350
+                                    )
+                                )
                             },
                             popExitTransition = {
-                                slideOutVertically(
-                                    targetOffsetY = { fullHeight -> fullHeight },
-                                    animationSpec = tween(500)
-                                ) + fadeOut(animationSpec = tween(500))
+                                // 返回时的退出动画：向右滑出
+                                slideOutHorizontally(
+                                    targetOffsetX = { fullWidth -> fullWidth },
+                                    animationSpec = tween(
+                                        durationMillis = 300,
+                                        easing = FastOutSlowInEasing
+                                    )
+                                ) + fadeOut(
+                                    animationSpec = tween(
+                                        durationMillis = 300
+                                    )
+                                )
                             }
                         ) {
+                            // 开屏页面
                             composable(appNavItems[0].route) {
+                                SplashView {
+                                    appNavController.navigate(appNavItems[1].route) {
+                                        popUpTo(appNavItems[0].route) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            }
+                            // 主页面
+                            composable(appNavItems[1].route) {
                                 MainFrame(themeMode = themeMode, themeChange = {
                                     themeMode = it
                                     mmkv.putBoolean(ConfigKeys.IS_DARK_MODE, it == ThemeMode.DARK)
                                 }) {
-                                    appNavController.navigate(appNavItems[1].route) {
+                                    appNavController.navigate(appNavItems[2].route) {
                                         selectedItemIndex = 1
                                         popUpTo(appNavController.graph.startDestinationId) {
                                             saveState = true
@@ -179,7 +289,8 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                             }
-                            composable(appNavItems[1].route) {
+                            // 设备页面
+                            composable(appNavItems[2].route) {
                                 DevicesView {
                                     selectedItemIndex = 0
                                     appNavController.popBackStack()
@@ -187,7 +298,6 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
-
                 }
 
             }

@@ -29,6 +29,7 @@ val mainNavItems = listOf(
     MainNavItem("settings", "设置", "智能平台设置", Icons.Outlined.Settings)
 )
 val appNavItems = listOf(
+    AppNavItem("splash", "开屏页面"),
     AppNavItem("main", "主导航"),
     AppNavItem("devices", "设备列表"),
 )
