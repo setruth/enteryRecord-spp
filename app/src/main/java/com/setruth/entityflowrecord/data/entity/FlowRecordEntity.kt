@@ -6,11 +6,12 @@ import androidx.room.PrimaryKey
 import com.setruth.entityflowrecord.data.model.FLowType
 import com.setruth.entityflowrecord.data.model.FlowBaseRecord
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Entity
 data class FlowRecordEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String = UUID.randomUUID().toString(),
     @ColumnInfo
     override val timestamp: LocalDateTime,
     @ColumnInfo

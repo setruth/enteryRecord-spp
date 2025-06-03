@@ -32,7 +32,7 @@ interface FlowRecordDao {
 
     // 根据ID删除记录
     @Query("DELETE FROM FlowRecordEntity WHERE id = :id")
-    suspend fun deleteById(id: Int)
+    suspend fun deleteById(id: String)
 
     // 删除所有记录
     @Query("DELETE FROM FlowRecordEntity")
@@ -40,7 +40,7 @@ interface FlowRecordDao {
 
     // 根据ID查询记录
     @Query("SELECT * FROM FlowRecordEntity WHERE id = :id")
-    suspend fun getById(id: Int): FlowRecordEntity?
+    suspend fun getById(id: String): FlowRecordEntity?
 
     // 获取所有记录（按时间倒序）
     @Query("SELECT * FROM FlowRecordEntity ORDER BY timestamp DESC")
