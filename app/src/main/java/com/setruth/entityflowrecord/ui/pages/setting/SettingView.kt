@@ -1,72 +1,106 @@
 package com.setruth.entityflowrecord.ui.pages.setting
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MultilineChart
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.outlined.Block
-import androidx.compose.material.icons.outlined.NotificationAdd
-import androidx.compose.material3.Text
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.setruth.entityflowrecord.data.di.appModule
 import com.setruth.entityflowrecord.data.model.ThemeMode
+import com.setruth.entityflowrecord.data.repository.BluetoothRepository
 import com.setruth.entityflowrecord.ui.frame.MainFrame
-import com.setruth.entityflowrecord.ui.pages.setting.components.CapacityConfigCard
-import com.setruth.entityflowrecord.ui.pages.setting.components.FlowStatus
-import com.setruth.entityflowrecord.ui.pages.setting.components.SystemSettingItem
-import com.setruth.entityflowrecord.ui.pages.setting.components.SystemSettingsCard
+import com.setruth.entityflowrecord.ui.pages.setting.components.FullCountCard
+import com.setruth.entityflowrecord.ui.pages.setting.components.OtherSettingsCard
 import com.setruth.entityflowrecord.ui.pages.setting.components.ThresholdConfigCard
-import com.setruth.entityflowrecord.ui.pages.setting.components.ThresholdItem
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
+import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.KoinApplicationPreview
+import org.koin.dsl.module
 
 @Composable
-fun SettingView() {
-    LazyColumn(
+fun SettingView(
+    viewModel: SettingViewModel = koinViewModel(),
+) {
+    val lightRange by viewModel.lightRange.collectAsState()
+    val fullCount by viewModel.fullCount.collectAsState()
+    val voiceRemindEnable by viewModel.voiceRemindEnable.collectAsState()
+    val noEntranceEnable by viewModel.noEntranceEnable.collectAsState()
+    val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        item {
-            CapacityConfigCard()
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
-        item{
-            ThresholdConfigCard(
-                thresholdItems = listOf(
-                    ThresholdItem(FlowStatus.GREEN, "绿灯状态", "正常通行，允许进入", "大于0人"),
-                    ThresholdItem(FlowStatus.YELLOW, "黄灯状态", "谨慎通行，注意人数", "大于35人"),
-                    ThresholdItem(FlowStatus.RED, "红灯状态", "禁止进入，已达上限", "大于70人")
+    ) { _ ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            item {
+                FullCountCard(fullCount = fullCount) {
+                    viewModel.sendIntent(SettingViewIntent.UpdateFullCount(it))
+                    scope.launch {
+                        snackbarHostState.showSnackbar(message = "正在设置最大容量")
+
+                    }
+                }
+            }
+            item {
+                ThresholdConfigCard(lightRange = lightRange) {
+                    viewModel.sendIntent(SettingViewIntent.UpdateLightRange(it))
+                    scope.launch {
+                        snackbarHostState.showSnackbar(message = "正在设置阈值")
+                    }
+                }
+            }
+            item {
+                OtherSettingsCard(
+                    voiceRemindEnable = voiceRemindEnable,
+                    noEntranceEnable = noEntranceEnable,
+                    onVoiceRemindChange = {
+                        viewModel.sendIntent(SettingViewIntent.UpdateVoiceRemindEnable(it))
+                    },
+                    noEntranceEnableChange = {
+                        viewModel.sendIntent(SettingViewIntent.UpdateNoEntranceEnable(it))
+                    }
                 )
-            )
-        }
-        item {
-            SystemSettingsCard(
-                settingsItems = listOf(
-                    SystemSettingItem(
-                        Icons.Outlined.NotificationAdd,
-                        "声音提醒",
-                        "有人进入时蜂鸣器提醒",
-                        true
-                    ),
-                    SystemSettingItem(
-                        Icons.Outlined.Block,
-                        "停止禁入",
-                        "启用后达到最大容量将禁止进入",
-                        false
-                    )
-                )
-            )
+            }
         }
     }
+
 }
 
 @Preview(showBackground = true, widthDp = 360, heightDp = 720)
 @Composable
-fun HomeViewPreview() {
+fun SettingViewPreview() {
+
     EntityFlowRecordTheme(ThemeMode.LIGHT) {
-        MainFrame(2)
+        KoinApplicationPreview(application = {
+            modules(appModule, module {
+                single { BluetoothRepository() }
+            })
+        }) {
+            MainFrame(2)
+        }
     }
 }
