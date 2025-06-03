@@ -45,6 +45,7 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.room.Room
 import com.setruth.entityflowrecord.data.di.appModule
 import com.setruth.entityflowrecord.data.model.ConfigKeys
 import com.setruth.entityflowrecord.data.model.MainNavItem
@@ -52,6 +53,7 @@ import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.data.model.appNavItems
 import com.setruth.entityflowrecord.data.model.mainNavItems
 import com.setruth.entityflowrecord.data.repository.BluetoothRepository
+import com.setruth.entityflowrecord.database.AppDatabase
 import com.setruth.entityflowrecord.ui.frame.MainFrame
 import com.setruth.entityflowrecord.ui.pages.devices.DevicesView
 import com.setruth.entityflowrecord.ui.pages.home.HomeView
@@ -118,15 +120,20 @@ class MainActivity : ComponentActivity() {
         requestBluetoothPermissions()
         val blueAdapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
         bluetoothRepository = BluetoothRepository(this, blueAdapter)
-        val defaultThemeMode=  if (mmkv.getBoolean(ConfigKeys.IS_DARK_MODE, false)) {
+        val defaultThemeMode = if (mmkv.getBoolean(ConfigKeys.IS_DARK_MODE, false)) {
             ThemeMode.DARK
         } else {
             ThemeMode.LIGHT
         }
+        val database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "entityFlowRecord"
+        ).build()
         setContent {
             KoinApplication(application = {
                 androidContext(this@MainActivity)
                 modules(appModule, module {
+                    single { database.flowRecordDao() }
                     single { bluetoothRepository }
                 })
             }) {
@@ -154,6 +161,7 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     }
+
                                     appNavItems[1].route -> {
                                         // 主页面：从右侧滑入
                                         slideInHorizontally(
@@ -169,6 +177,7 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     }
+
                                     appNavItems[2].route -> {
                                         // 设备页面：从右侧滑入
                                         slideInHorizontally(
@@ -183,6 +192,7 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     }
+
                                     else -> {
                                         // 默认动画
                                         fadeIn(animationSpec = tween(300))
@@ -200,6 +210,7 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     }
+
                                     appNavItems[1].route -> {
                                         // 主页面：向左滑出
                                         slideOutHorizontally(
@@ -214,6 +225,7 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     }
+
                                     appNavItems[2].route -> {
                                         // 设备页面：向左滑出
                                         slideOutHorizontally(
@@ -228,6 +240,7 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     }
+
                                     else -> {
                                         fadeOut(animationSpec = tween(250))
                                     }
