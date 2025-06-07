@@ -28,7 +28,7 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("MissingPermission")
-class BluetoothRepository(
+open class BluetoothRepository(
     private val context: Context? = null,
     private val bluetoothAdapter: BluetoothAdapter? = null,
 ) {
