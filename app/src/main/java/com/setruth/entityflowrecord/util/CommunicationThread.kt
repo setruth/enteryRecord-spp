@@ -26,12 +26,8 @@ class CommunicationThread(
                     break
                 }
                 onDataReceived(buffer, bytes)
-            } catch (e: IOException) {
-                Log.e(TAG, "通讯线程读取输入流失败", e)
+            } catch (e: Exception) {
                 onError()
-                break
-            } catch (e: InterruptedException) {
-                Log.d(TAG, "通讯线程结束")
                 break
             }
         }
