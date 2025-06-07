@@ -7,9 +7,9 @@ import android.bluetooth.BluetoothDevice.BOND_BONDED
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.material3.Divider
 import com.setruth.entityflowrecord.data.model.BluetoothStatusListener
+import com.setruth.entityflowrecord.data.model.CMD_CONNECT
+import com.setruth.entityflowrecord.data.model.CMD_DISCONNECT
 import com.setruth.entityflowrecord.data.model.SPP_UUID
 import com.setruth.entityflowrecord.util.CommunicationThread
 import kotlinx.coroutines.CoroutineScope
@@ -188,7 +188,7 @@ class BluetoothRepository(
                                 TAG,
                                 "通信线程出错 ，已断开连接"
                             )
-                            disconnect()
+                            disconnectAfter()
                         },
                         { receivedBytes, bytesRead ->
                             val hexString = receivedBytes.sliceArray(0 until bytesRead)
@@ -210,12 +210,10 @@ class BluetoothRepository(
                         }
                     )
                     communicationThread.start()
-
-                    val command = "android~"
-                    communicationThread.write(command.toByteArray())
+                    val command = CMD_CONNECT
+                    Log.d(TAG, "createConnect: 发送指令${command}")
+                    communicationThread.write("*setruth~".toByteArray())
                 }
-
-
             } catch (connectException: IOException) {
                 val baseTip = "无法连接远程蓝牙设备"
                 _connectionState.value = BluetoothConnectionState.ConnectionFailed(baseTip)
@@ -252,6 +250,8 @@ class BluetoothRepository(
      */
     private fun release() {
         try {
+            _bluetoothSocket?.outputStream?.close()
+            _bluetoothSocket?.inputStream?.close()
             _bluetoothSocket?.close()
         } catch (e: IOException) {
             Log.e(TAG, "蓝牙无法关闭", e)
@@ -263,12 +263,23 @@ class BluetoothRepository(
     }
 
     /**
-     * 取消连接。
-     * 在不再需要 BluetoothRepository 时调用此方法。
+     * 取消连接的后续。
+     * 取消连接之后的操作。
      */
-    fun disconnect() {
+    private fun disconnectAfter() {
         release()
         startDiscoveryAutoCancel()
+    }
+
+    fun disconnect() {
+        when (ioStream.value) {
+            is BluetoothIoStream.Connected -> {
+                (ioStream.value as BluetoothIoStream.Connected).outputStream.write(CMD_DISCONNECT.toByteArray())
+            }
+
+            BluetoothIoStream.Disconnected -> {}
+        }
+        disconnectAfter()
     }
 
     fun cancelDeviceBound(device: BluetoothDevice) {
