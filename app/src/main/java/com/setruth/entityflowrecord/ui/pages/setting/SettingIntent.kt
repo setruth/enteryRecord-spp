@@ -3,9 +3,9 @@ package com.setruth.entityflowrecord.ui.pages.setting
 import androidx.lifecycle.ViewModel
 import com.setruth.entityflowrecord.data.model.ConfigKeys
 import com.setruth.entityflowrecord.data.model.DEFAULT_ALARM_LIGHT
+import com.setruth.entityflowrecord.data.model.DEFAULT_BUZZ_ON
 import com.setruth.entityflowrecord.data.model.DEFAULT_ERR_LIGHT
-import com.setruth.entityflowrecord.data.model.DEFAULT_IS_BUZZ_ON
-import com.setruth.entityflowrecord.data.model.DEFAULT_IS_FULL_ON
+import com.setruth.entityflowrecord.data.model.DEFAULT_FULL_STOP_ON
 import com.setruth.entityflowrecord.data.model.DEFAULT_MAX_COUNT
 import com.setruth.entityflowrecord.data.model.LightRange
 import com.setruth.entityflowrecord.data.repository.BluetoothRepository
@@ -45,10 +45,10 @@ class SettingViewModel(
                 decodeInt(ConfigKeys.FULL_COUNT, DEFAULT_MAX_COUNT)
             }
             _voiceRemindEnable.update {
-                decodeBool(ConfigKeys.VOICE_REMIND_ENABLE, DEFAULT_IS_BUZZ_ON)
+                decodeBool(ConfigKeys.VOICE_REMIND_ENABLE, DEFAULT_BUZZ_ON)
             }
             _noEntranceEnable.update {
-                decodeBool(ConfigKeys.NO_ENTRANCE_ENABLE, DEFAULT_IS_FULL_ON)
+                decodeBool(ConfigKeys.NO_ENTRANCE_ENABLE, DEFAULT_FULL_STOP_ON)
             }
             _lightRange.update {
                 LightRange(

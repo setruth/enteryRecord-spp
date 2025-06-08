@@ -70,10 +70,15 @@ fun getNewErrLightCMD(value: Int): String {
 fun getSTMInitCMD(
     maxCount: Int,
     currentCount: Int,
-    isFullOnt: Int,
-    isBuzzOn: Int,
+    fullStopOn: Int,
+    buzzOn: Int,
     alarmLight: Int,
     errLight: Int
 ): String {
-    return "${CMD_START}init:${maxCount};${currentCount};${isFullOnt};${isBuzzOn};${alarmLight};${errLight}$CMD_ENDING"
+    return "${CMD_START}init:${maxCount};${currentCount};${fullStopOn};${buzzOn};${alarmLight};${errLight}$CMD_ENDING"
 }
+
+//接收指令
+const val CMD_CONNECT_SUCCESS = "connectOK"
+
+const val CMD_CONFIG_INIT_FINISH = "configInitOK"
