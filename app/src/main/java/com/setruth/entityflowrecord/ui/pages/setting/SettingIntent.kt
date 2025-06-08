@@ -2,6 +2,11 @@ package com.setruth.entityflowrecord.ui.pages.setting
 
 import androidx.lifecycle.ViewModel
 import com.setruth.entityflowrecord.data.model.ConfigKeys
+import com.setruth.entityflowrecord.data.model.DEFAULT_ALARM_LIGHT
+import com.setruth.entityflowrecord.data.model.DEFAULT_ERR_LIGHT
+import com.setruth.entityflowrecord.data.model.DEFAULT_IS_BUZZ_ON
+import com.setruth.entityflowrecord.data.model.DEFAULT_IS_FULL_ON
+import com.setruth.entityflowrecord.data.model.DEFAULT_MAX_COUNT
 import com.setruth.entityflowrecord.data.model.LightRange
 import com.setruth.entityflowrecord.data.repository.BluetoothRepository
 import com.setruth.entityflowrecord.data.repository.CMDBTRepository
@@ -37,18 +42,18 @@ class SettingViewModel(
     init {
         mmkv?.apply {
             _fullCount.update {
-                decodeInt(ConfigKeys.FULL_COUNT, 20)
+                decodeInt(ConfigKeys.FULL_COUNT, DEFAULT_MAX_COUNT)
             }
             _voiceRemindEnable.update {
-                decodeBool(ConfigKeys.VOICE_REMIND_ENABLE, false)
+                decodeBool(ConfigKeys.VOICE_REMIND_ENABLE, DEFAULT_IS_BUZZ_ON)
             }
             _noEntranceEnable.update {
-                decodeBool(ConfigKeys.NO_ENTRANCE_ENABLE, false)
+                decodeBool(ConfigKeys.NO_ENTRANCE_ENABLE, DEFAULT_IS_FULL_ON)
             }
             _lightRange.update {
                 LightRange(
-                    warn = decodeInt(ConfigKeys.YELLOW_LIGHT_RANGE, 0),
-                    err = decodeInt(ConfigKeys.RED_LIGHT_RANGE, 0),
+                    warn = decodeInt(ConfigKeys.YELLOW_LIGHT_RANGE, DEFAULT_ALARM_LIGHT),
+                    err = decodeInt(ConfigKeys.RED_LIGHT_RANGE, DEFAULT_ERR_LIGHT),
                 )
             }
         }
