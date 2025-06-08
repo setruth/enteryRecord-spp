@@ -42,7 +42,7 @@ open class BluetoothRepository(
     private var bluetoothScanCancelTimerJob: Job? = null
     val connectedDevice: StateFlow<BluetoothDevice?> = _connectedDevice.asStateFlow()
     private val _receivingCommand = MutableSharedFlow<String>()
-    protected val receivingCommandFlow = _receivingCommand.asSharedFlow()
+    val receivingCommandFlow = _receivingCommand.asSharedFlow()
     private var communicationTask: CommunicationTask? = null
     private var loadingDevice: BluetoothDevice? = null
     private var _bluetoothSocket: BluetoothSocket? = null
@@ -259,7 +259,7 @@ open class BluetoothRepository(
      * 断开连接
      * 释放所有资源相关连接设备和状态重置
      */
-    private fun disconnect() {
+    fun disconnect() {
         release()
         startDiscoveryAutoCancel()
     }
