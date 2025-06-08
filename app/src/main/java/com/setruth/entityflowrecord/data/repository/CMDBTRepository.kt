@@ -3,9 +3,12 @@ package com.setruth.entityflowrecord.data.repository
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import com.setruth.entityflowrecord.data.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -13,6 +16,10 @@ class CMDBTRepository(
     context: Context? = null,
     bluetoothAdapter: BluetoothAdapter? = null,
 ) : BluetoothRepository(context, bluetoothAdapter) {
+
+    private var _initConfigState =
+        MutableStateFlow<InitConfigState>(InitConfigState.None)
+    val initConfigState = _initConfigState.asStateFlow()
 
     companion object {
         private const val TAG = "CMDBTRepository"
@@ -29,6 +36,12 @@ class CMDBTRepository(
         CoroutineScope(Dispatchers.Default).launch {
             receivingCommandFlow.collect {
                 Log.d(TAG, "接收到了指令:$it ")
+                if (CMD_CONNECT_SUCCESS == it) {
+                    _initConfigState.value = InitConfigState.Need
+                }
+                if (CMD_CONFIG_INIT_FINISH == it){
+                    _initConfigState.value= InitConfigState.Done
+                }
             }
         }
     }
@@ -146,28 +159,30 @@ class CMDBTRepository(
      * 发送STM初始化指令
      * @param maxCount 最大容量
      * @param currentCount 当前计数
-     * @param isFullOn 是否开启满员提示 (1开启, 0关闭)
-     * @param isBuzzOn 是否开启蜂鸣器 (1开启, 0关闭)
+     * @param fullStopOn 是否开启满员是否禁止入内 (1开启, 0关闭)
+     * @param buzzOn 是否开启蜂鸣器 (1开启, 0关闭)
      * @param alarmLight 警告灯阈值
      * @param errLight 错误灯阈值
      */
     fun sendSTMInit(
         maxCount: Int,
         currentCount: Int,
-        isFullOn: Int,
-        isBuzzOn: Int,
+        fullStopOn: Int,
+        buzzOn: Int,
         alarmLight: Int,
         errLight: Int
     ): Boolean {
         val command =
-            getSTMInitCMD(maxCount, currentCount, isFullOn, isBuzzOn, alarmLight, errLight)
+            getSTMInitCMD(maxCount, currentCount, fullStopOn, buzzOn, alarmLight, errLight)
         return sendCommand(command)
     }
-
-    /**
-     * 检查是否可以发送指令
-     */
-    fun canSendCommand(): Boolean {
-        return ioStream.value is BluetoothIoStream.Connected
+    fun restInitConfigState(){
+        _initConfigState.value= InitConfigState.None
     }
+}
+
+sealed class InitConfigState {
+    object None : InitConfigState()
+    object Need : InitConfigState()
+    object Done : InitConfigState()
 }

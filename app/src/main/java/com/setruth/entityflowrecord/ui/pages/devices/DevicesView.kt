@@ -65,6 +65,7 @@ import com.setruth.entityflowrecord.data.model.SUCCESS_COLOR
 import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.data.repository.BluetoothConnectionState
 import com.setruth.entityflowrecord.data.repository.BluetoothRepository
+import com.setruth.entityflowrecord.data.repository.InitConfigState
 import com.setruth.entityflowrecord.ui.frame.MainFrame
 import com.setruth.entityflowrecord.ui.pages.devices.components.ConnectDialog
 import com.setruth.entityflowrecord.ui.pages.devices.components.DeviceListCard
@@ -84,6 +85,7 @@ fun DevicesView(viewModel: DevicesViewModel = koinViewModel(), onFinish: () -> U
     val scanLoading by viewModel.scanLoading.collectAsState()
     var loadingConnectDevice by remember { mutableStateOf<BluetoothDevice?>(null) }
     var disconnectConfirmDialogShow by remember { mutableStateOf(false) }
+    val initConfigState by viewModel.initConfigState.collectAsState()
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.startBluetoothScan()
@@ -113,6 +115,20 @@ fun DevicesView(viewModel: DevicesViewModel = koinViewModel(), onFinish: () -> U
             }
 
             BluetoothConnectionState.None -> {}
+        }
+    }
+    LaunchedEffect(initConfigState) {
+        when (initConfigState) {
+            InitConfigState.Done -> {
+                Toast.makeText(context, "配置同步成功", Toast.LENGTH_SHORT).show()
+                viewModel.restInitConfigState()
+            }
+
+            InitConfigState.Need -> {
+                viewModel.uploadConfig()
+            }
+
+            InitConfigState.None -> {}
         }
     }
     Scaffold(
@@ -190,7 +206,7 @@ fun DevicesView(viewModel: DevicesViewModel = koinViewModel(), onFinish: () -> U
                     }
                 }
             }
-            if (connectionState == BluetoothConnectionState.Connecting) {
+            if (connectionState == BluetoothConnectionState.Connecting || initConfigState == InitConfigState.Need) {
                 Column(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.Center,
@@ -203,8 +219,15 @@ fun DevicesView(viewModel: DevicesViewModel = koinViewModel(), onFinish: () -> U
                             trackColor = MaterialTheme.colorScheme.surfaceVariant,
                         )
                         Spacer(modifier = Modifier.height(30.dp))
+                        val tip = if (connectionState == BluetoothConnectionState.Connecting) {
+                            "正在连接设备"
+                        } else if (initConfigState == InitConfigState.Need) {
+                            "正在同步设备配置"
+                        } else {
+                            ""
+                        }
                         Text(
-                            text = "设备正在连接",
+                            text = tip,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
