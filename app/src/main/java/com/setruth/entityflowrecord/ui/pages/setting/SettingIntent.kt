@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.setruth.entityflowrecord.data.model.ConfigKeys
 import com.setruth.entityflowrecord.data.model.LightRange
 import com.setruth.entityflowrecord.data.repository.BluetoothRepository
+import com.setruth.entityflowrecord.data.repository.CMDBTRepository
 import com.tencent.mmkv.MMKV
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +18,7 @@ sealed class SettingViewIntent {
 }
 
 class SettingViewModel(
-    private val bluetoothRepository: BluetoothRepository
+    private val cmdBTRepository: CMDBTRepository
 ) : ViewModel() {
     private var _lightRange = MutableStateFlow(LightRange())
     val lightRange = _lightRange.asStateFlow()

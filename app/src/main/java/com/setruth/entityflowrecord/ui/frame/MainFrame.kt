@@ -30,6 +30,7 @@ import com.setruth.entityflowrecord.data.model.MaskAnimModel
 import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.data.model.mainNavItems
 import com.setruth.entityflowrecord.data.repository.BluetoothRepository
+import com.setruth.entityflowrecord.data.repository.CMDBTRepository
 import com.setruth.entityflowrecord.ui.pages.home.HomeView
 import com.setruth.entityflowrecord.ui.pages.notification.NotificationView
 import com.setruth.entityflowrecord.ui.pages.setting.SettingView
@@ -48,7 +49,7 @@ fun MainFrame(
     themeChange: (ThemeMode) -> Unit = {},
     navToDevices: () -> Unit = {}
 ) {
-    val bluetoothRepository = koinInject<BluetoothRepository>()
+    val bluetoothRepository = koinInject<CMDBTRepository>()
     val connectedDevice by bluetoothRepository.connectedDevice.collectAsState()
     var selectedItemIndex by remember { mutableIntStateOf(startIndex) }
     val mainNavController = rememberNavController()

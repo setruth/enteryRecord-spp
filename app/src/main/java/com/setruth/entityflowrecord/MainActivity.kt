@@ -1,7 +1,6 @@
 package com.setruth.entityflowrecord
 
 import android.Manifest
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
@@ -11,7 +10,6 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -26,21 +24,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.Layout
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,17 +41,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.setruth.entityflowrecord.data.di.appModule
 import com.setruth.entityflowrecord.data.model.ConfigKeys
-import com.setruth.entityflowrecord.data.model.MainNavItem
 import com.setruth.entityflowrecord.data.model.ThemeMode
 import com.setruth.entityflowrecord.data.model.appNavItems
-import com.setruth.entityflowrecord.data.model.mainNavItems
-import com.setruth.entityflowrecord.data.repository.BluetoothRepository
+import com.setruth.entityflowrecord.data.repository.CMDBTRepository
 import com.setruth.entityflowrecord.database.AppDatabase
 import com.setruth.entityflowrecord.ui.frame.MainFrame
 import com.setruth.entityflowrecord.ui.pages.devices.DevicesView
-import com.setruth.entityflowrecord.ui.pages.home.HomeView
-import com.setruth.entityflowrecord.ui.pages.notification.NotificationView
-import com.setruth.entityflowrecord.ui.pages.setting.SettingView
 import com.setruth.entityflowrecord.ui.theme.EntityFlowRecordTheme
 import com.setruth.entityflowrecord.ui.pages.splash.SplashView
 import com.tencent.mmkv.MMKV
@@ -68,18 +56,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.koin.androidContext
-import org.koin.android.ext.koin.androidLogger
-import org.koin.androidx.compose.KoinAndroidContext
-import org.koin.androidx.scope.ScopeActivity
 import org.koin.compose.KoinApplication
-import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import kotlin.time.Duration.Companion.seconds
 
 class MainActivity : ComponentActivity() {
     private lateinit var requestBluetoothEnableLauncher: ActivityResultLauncher<Intent>
     private lateinit var requestLocationEnableLauncher: ActivityResultLauncher<Intent>
-    private var bluetoothRepository: BluetoothRepository? = null
+    private var cmdBTRepository: CMDBTRepository? = null
     private val requestPermissionsLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             val allGranted = permissions.entries.all { it.value }
@@ -119,7 +103,7 @@ class MainActivity : ComponentActivity() {
             }
         requestBluetoothPermissions()
         val blueAdapter = (getSystemService(BLUETOOTH_SERVICE) as BluetoothManager).adapter
-        bluetoothRepository = BluetoothRepository(this, blueAdapter)
+        cmdBTRepository = CMDBTRepository(this, blueAdapter)
         val defaultThemeMode = if (mmkv.getBoolean(ConfigKeys.IS_DARK_MODE, false)) {
             ThemeMode.DARK
         } else {
@@ -134,7 +118,7 @@ class MainActivity : ComponentActivity() {
                 androidContext(this@MainActivity)
                 modules(appModule, module {
                     single { database.flowRecordDao() }
-                    single { bluetoothRepository }
+                    single { cmdBTRepository }
                 })
             }) {
                 val appNavController = rememberNavController()
@@ -344,7 +328,7 @@ class MainActivity : ComponentActivity() {
 
     private fun checkAndProceedWithBluetoothOperations() {
         ensureBluetoothAndLocationEnabled(
-            activityContext = this, // 或者 requireContext() 如果在 Fragment 中
+            activityContext = this,
             requestBluetoothEnableLauncher = requestBluetoothEnableLauncher,
             requestLocationEnableLauncher = requestLocationEnableLauncher
         ) {
@@ -367,7 +351,7 @@ class MainActivity : ComponentActivity() {
         onAllConditionsMet: () -> Unit
     ) {
         val bluetoothManager =
-            activityContext.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            activityContext.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
         val bluetoothAdapter = bluetoothManager.adapter
 
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
@@ -399,7 +383,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        bluetoothRepository?.unregister()
+        cmdBTRepository?.unregister()
     }
 }
 
