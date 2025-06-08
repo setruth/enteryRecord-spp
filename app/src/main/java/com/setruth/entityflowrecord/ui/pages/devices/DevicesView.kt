@@ -250,6 +250,7 @@ fun DevicesView(viewModel: DevicesViewModel = koinViewModel(), onFinish: () -> U
             connectDevice,
             onConfirm = {
                 viewModel.disconnect()
+                disconnectConfirmDialogShow = false
             }, onCancel = {
                 disconnectConfirmDialogShow = false
             }
