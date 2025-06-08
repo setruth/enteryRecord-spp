@@ -64,6 +64,11 @@ fun getNewErrLightCMD(value: Int): String {
     return "${CMD_START}new_err:$value$CMD_ENDING"
 }
 
+fun getNewAlarmAndErrLightCMD(alarm: Int, err: Int): String {
+    require(alarm > 0 && err > 0) { "新的值应该大于0" }
+    return "${CMD_START}new_light:${alarm};${err}$CMD_ENDING"
+}
+
 /**
  * 获取初始化STM相关配置指令
  */

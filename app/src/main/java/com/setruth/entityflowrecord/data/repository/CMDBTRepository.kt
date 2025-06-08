@@ -39,8 +39,8 @@ class CMDBTRepository(
                 if (CMD_CONNECT_SUCCESS == it) {
                     _initConfigState.value = InitConfigState.Need
                 }
-                if (CMD_CONFIG_INIT_FINISH == it){
-                    _initConfigState.value= InitConfigState.Done
+                if (CMD_CONFIG_INIT_FINISH == it) {
+                    _initConfigState.value = InitConfigState.Done
                 }
             }
         }
@@ -155,6 +155,16 @@ class CMDBTRepository(
         }
     }
 
+    fun setNewAlarmAndErrorLight(alarm: Int, err: Int): Boolean {
+        return try {
+            val command = getNewAlarmAndErrLightCMD(alarm, err)
+            sendCommand(command)
+        } catch (e: IllegalArgumentException) {
+            Log.e(TAG, "设置错误灯阈值参数错误: alarm-$alarm error-$err", e)
+            false
+        }
+    }
+
     /**
      * 发送STM初始化指令
      * @param maxCount 最大容量
@@ -176,8 +186,9 @@ class CMDBTRepository(
             getSTMInitCMD(maxCount, currentCount, fullStopOn, buzzOn, alarmLight, errLight)
         return sendCommand(command)
     }
-    fun restInitConfigState(){
-        _initConfigState.value= InitConfigState.None
+
+    fun restInitConfigState() {
+        _initConfigState.value = InitConfigState.None
     }
 }
 
