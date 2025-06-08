@@ -8,16 +8,17 @@ import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.util.Log
 import com.setruth.entityflowrecord.data.model.BluetoothStatusListener
-import com.setruth.entityflowrecord.data.model.CMD_CONNECT
 import com.setruth.entityflowrecord.data.model.CMD_DISCONNECT
 import com.setruth.entityflowrecord.data.model.SPP_UUID
-import com.setruth.entityflowrecord.util.CommunicationThread
+import com.setruth.entityflowrecord.util.CommunicationTask
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -29,7 +30,7 @@ import kotlin.time.Duration.Companion.seconds
 
 @SuppressLint("MissingPermission")
 open class BluetoothRepository(
-    private val context: Context? = null,
+    context: Context? = null,
     private val bluetoothAdapter: BluetoothAdapter? = null,
 ) {
     private val TAG = "BluetoothRepository"
@@ -38,8 +39,11 @@ open class BluetoothRepository(
     private var _connectionState =
         MutableStateFlow<BluetoothConnectionState>(BluetoothConnectionState.None)
     val connectionState = _connectionState.asStateFlow()
-    private var bluetoothScanCancelTimerJob: Job? = null //扫描取消定时器任务
+    private var bluetoothScanCancelTimerJob: Job? = null
     val connectedDevice: StateFlow<BluetoothDevice?> = _connectedDevice.asStateFlow()
+    private val _receivingCommand = MutableSharedFlow<String>()
+    protected val receivingCommandFlow = _receivingCommand.asSharedFlow()
+    private var communicationTask: CommunicationTask? = null
     private var loadingDevice: BluetoothDevice? = null
     private var _bluetoothSocket: BluetoothSocket? = null
     private val _ioStream = MutableStateFlow<BluetoothIoStream>(BluetoothIoStream.Disconnected)
@@ -175,12 +179,11 @@ open class BluetoothRepository(
                 _bluetoothSocket?.connect()
                 _connectedDevice.value = device
                 _bluetoothSocket?.let { socket ->
-                    _connectionState.value = BluetoothConnectionState.Connected
                     val inputStream = socket.inputStream
                     val outputStream = socket.outputStream
                     startDiscoveryAutoCancel() //连接成功后再次扫描蓝牙刷新周围设备列表
                     _ioStream.value = BluetoothIoStream.Connected(inputStream, outputStream)
-                    val communicationThread = CommunicationThread(
+                    communicationTask = CommunicationTask(
                         inputStream,
                         outputStream,
                         {
@@ -188,31 +191,22 @@ open class BluetoothRepository(
                                 TAG,
                                 "通信线程出错 ，已断开连接"
                             )
-                            disconnectAfter()
+                            disconnect();
                         },
                         { receivedBytes, bytesRead ->
-                            val hexString = receivedBytes.sliceArray(0 until bytesRead)
-                                .joinToString(" ") { "%02X".format(it) }
-                            Log.d(TAG, "Android 收到原始十六进制数据 ($bytesRead 字节): $hexString")
-                            try {
-                                val data = String(receivedBytes, 0, bytesRead, Charsets.US_ASCII)
-                                Log.d(TAG, "读取到蓝牙给的数据 (String - ASCII): $data")
-                            } catch (e: Exception) {
-                                Log.e(TAG, "ASCII 解码失败: ${e.message}", e)
-                            }
-                            try {
-                                val dataUtf8 = String(receivedBytes, 0, bytesRead, Charsets.UTF_8)
-                                Log.d(TAG, "读取到蓝牙给的数据 (String - UTF-8): $dataUtf8")
-                            } catch (e: Exception) {
-                                Log.e(TAG, "UTF-8 解码失败: ${e.message}", e)
-                            }
+                            _receivingCommand.emit(
+                                String(
+                                    receivedBytes,
+                                    0,
+                                    bytesRead,
+                                    Charsets.US_ASCII
+                                )
+                            )
 
                         }
                     )
-                    communicationThread.start()
-                    val command = CMD_CONNECT
-                    Log.d(TAG, "createConnect: 发送指令${command}")
-                    communicationThread.write("*setruth~".toByteArray())
+                    communicationTask?.start()
+                    _connectionState.value = BluetoothConnectionState.Connected
                 }
             } catch (connectException: IOException) {
                 val baseTip = "无法连接远程蓝牙设备"
@@ -250,8 +244,7 @@ open class BluetoothRepository(
      */
     private fun release() {
         try {
-            _bluetoothSocket?.outputStream?.close()
-            _bluetoothSocket?.inputStream?.close()
+            communicationTask?.cancel()
             _bluetoothSocket?.close()
         } catch (e: IOException) {
             Log.e(TAG, "蓝牙无法关闭", e)
@@ -263,23 +256,12 @@ open class BluetoothRepository(
     }
 
     /**
-     * 取消连接的后续。
-     * 取消连接之后的操作。
+     * 断开连接
+     * 释放所有资源相关连接设备和状态重置
      */
-    private fun disconnectAfter() {
+    private fun disconnect() {
         release()
         startDiscoveryAutoCancel()
-    }
-
-    fun disconnect() {
-        when (ioStream.value) {
-            is BluetoothIoStream.Connected -> {
-                (ioStream.value as BluetoothIoStream.Connected).outputStream.write(CMD_DISCONNECT.toByteArray())
-            }
-
-            BluetoothIoStream.Disconnected -> {}
-        }
-        disconnectAfter()
     }
 
     fun cancelDeviceBound(device: BluetoothDevice) {
